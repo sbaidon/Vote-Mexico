@@ -1,0 +1,44 @@
+{
+  "name": "vote-mexico",
+  "version": "0.0.1",
+  "description": "Vote Mexico 2018",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./src/server.js --exec babel-node -e js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sbaidon/Vote-Mexico.git"
+  },
+  "keywords": [
+    "Vote",
+    "Elections",
+    "2018"
+  ],
+  "author": "sbaidon",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sbaidon/Vote-Mexico/issues"
+  },
+  "homepage": "https://github.com/sbaidon/Vote-Mexico#readme",
+  "dependencies": {
+    "apollo-server-express": "^1.2.0",
+    "body-parser": "^1.18.2",
+    "dotenv": "^4.0.0",
+    "express": "^4.16.2",
+    "graphql": "^0.11.7",
+    "graphql-server-express": "^1.2.0",
+    "graphql-tools": "^2.6.1",
+    "jsonwebtoken": "^8.1.0",
+    "node-fetch": "^1.7.3"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-async-generator-functions": "^6.24.1",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-latest": "^6.24.1",
+    "nodemon": "^1.12.1"
+  }
+}
