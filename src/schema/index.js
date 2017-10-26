@@ -1,52 +1,36 @@
-import { graphql, buildSchema } from 'graphql';
+import { makeExecutableSchema } from 'graphql-tools';
+import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
 import fetch from 'node-fetch';
+import resolvers from './resolvers';
 
 // Construct a schema, using GraphQL schema language
-export const schema = buildSchema(`
+const typeDefs = `
   type User {
     id: ID!
     nickname: String
     email: String
   }
+
   type Query {
     me: User
     hello: String!
     helloAuth: String
   }
-`);
-
-// The root provides a resolver function for each API endpoint
-export const rootValue = {
-  me: (args, context) => {
-    return context.user;
-  },
-  hello: () => {
-    return 'Hello anyone!';
-  },
-  helloAuth: async (args, context) => {
-    console.log(context);
-    const user = context.user;
-    if (user) {
-      return `Hello, ${user.nickname}!`;
-    } else {
-      throw new Error('Unauthorized!');
-    }
-  }
-};
+`;
 
 export async function buildOptions(req, res) {
   const secrets = process.env;
   const { headers } = req;
   const authorization = headers['authorization'];
   const user = await getUser(authorization, secrets);
+  const schema = makeExecutableSchema({ typeDefs, resolvers });
   return {
     context: {
       user,
       secrets
     },
-    schema,
-    rootValue
+    schema
   };
 }
 
@@ -54,21 +38,10 @@ async function getUser(authorization, secrets) {
   const bearerLength = 'Bearer '.length;
   if (authorization && authorization.length > bearerLength) {
     const token = authorization.slice(bearerLength);
-    const { ok, result } = await new Promise(resolve =>
-      jwt.verify(token, secrets.AUTH0_SECRET, (err, result) => {
-        if (err) {
-          resolve({
-            ok: false,
-            result: err
-          });
-        } else {
-          resolve({
-            ok: true,
-            result
-          });
-        }
-      })
-    );
+    const verify = promisify(jwt.verify);
+    const { ok, result } = await verify(token, secrets.AUTH0_SECRET)
+      .then(result => Promise.resolve({ ok: true, result }))
+      .catch(error => Promise.resolve({ ok: false, result: error }));
     if (ok) {
       const profileRequest = await fetch(
         `https://${secrets.AUTH0_DOMAIN}/tokeninfo`,

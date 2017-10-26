@@ -27,17 +27,14 @@ server.use(
   graphiqlExpress({
     endpointURL: '/graphql',
     query: `{
-  me {
-    id
-    nickname
-    email
-  }
-  
-  hello
-  
-  helloAuth
-}
-`
+      me {
+        id
+        nickname
+        email
+      }
+      hello
+      helloAuth
+    } `
   })
 );
 
