@@ -2,18 +2,17 @@ import { makeExecutableSchema } from 'graphql-tools';
 import fetch from 'node-fetch';
 import resolvers from './resolvers';
 
-// Construct a schema, using GraphQL schema language
 const typeDefs = `
   type User {
     id: ID!
     nickname: String
     email: String
     age: String
+    picture: String
   }
 
   type Query {
-    me: User
-    hello: String!
+    user: User
     helloAuth: String
   }
 `;
@@ -56,7 +55,6 @@ async function getUser(token, userId) {
       }
     );
     const profile = await profileRequest.json();
-    console.log(profile);
     return {
       ...profile,
       id: profile.user_id,

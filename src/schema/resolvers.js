@@ -1,11 +1,8 @@
 // The root provides a resolver function for each API endpoint
 export default {
   Query: {
-    me(_, data, context) {
+    user(_, data, context) {
       return context.user;
-    },
-    hello() {
-      return 'Hello anyone!';
     },
     async helloAuth(_, data, context) {
       const user = context.user;
