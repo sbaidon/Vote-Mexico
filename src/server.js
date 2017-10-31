@@ -1,13 +1,11 @@
-import dotenv from 'dotenv';
 import express from 'express';
 import { graphqlExpress, graphiqlExpress } from 'apollo-server-express';
 import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 import jwks from 'jwks-rsa';
+import { run } from './scheduler';
 
 import { buildOptions } from './schema';
-
-dotenv.config();
 
 const PORT = 3000;
 const server = express();
@@ -65,6 +63,7 @@ server.use(function(err, req, res, next) {
 });
 
 server.listen(PORT, () => {
+  run();
   console.log(
     `GraphQL Server is now running on http://localhost:${PORT}/graphql`
   );

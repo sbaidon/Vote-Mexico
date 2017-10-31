@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/sbaidon/Vote-Mexico#readme",
   "dependencies": {
+    "agenda": "^1.0.3",
     "apollo-server-express": "^1.2.0",
     "body-parser": "^1.18.2",
     "dotenv": "^4.0.0",
@@ -32,7 +33,12 @@
     "graphql-server-express": "^1.2.0",
     "graphql-tools": "^2.6.1",
     "jwks-rsa": "^1.2.1",
-    "node-fetch": "^1.7.3"
+    "md5": "^2.2.1",
+    "mongodb": "^2.2.33",
+    "mongoose": "^4.12.5",
+    "mongoose-mongodb-errors": "0.0.2",
+    "node-fetch": "^1.7.3",
+    "validator": "^9.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
