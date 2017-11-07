@@ -4,7 +4,22 @@ import bodyParser from 'body-parser';
 import jwt from 'express-jwt';
 import jwks from 'jwks-rsa';
 import { run } from './scheduler';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 
+dotenv.config();
+
+mongoose.connect(process.env.DATABASE, {
+  useMongoClient: true
+});
+mongoose.Promise = global.Promise;
+mongoose.connection.on('error', err => {
+  console.error(`There was an error: ${err.message}`);
+});
+
+import './models/Candidate';
+import './models/Election';
+import './models/Vote';
 import { buildOptions } from './schema';
 
 const PORT = 3000;
@@ -21,19 +36,19 @@ if (typeof process.env.AUTH0_DOMAIN === 'undefined') {
   );
 }
 
-const jwtCheck = jwt({
-  secret: jwks.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
-  }),
-  audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
-  issuer: `https://${process.env.AUTH0_DOMAIN}/`,
-  algorithms: ['RS256']
-});
-
-server.use(jwtCheck);
+server.use(
+  jwt({
+    secret: jwks.expressJwtSecret({
+      cache: true,
+      rateLimit: true,
+      jwksRequestsPerMinute: 5,
+      jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
+    }),
+    audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
+    issuer: `https://${process.env.AUTH0_DOMAIN}/`,
+    algorithms: ['RS256']
+  })
+);
 
 server.use('/graphql', bodyParser.json(), graphqlExpress(buildOptions));
 
@@ -41,19 +56,11 @@ server.use(
   '/graphiql',
   graphiqlExpress({
     endpointURL: '/graphql',
-    query: `{
-      me {
-        id
-        nickname
-        email
-      }
-      hello
-      helloAuth
-    } `
+    query: `{} `
   })
 );
 
-server.use(function(err, req, res, next) {
+server.use(async (err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
     res.status(401).json({
       error: err,

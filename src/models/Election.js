@@ -27,7 +27,7 @@ const electionSchema = new Schema({
 electionSchema.virtual('votes', {
   ref: 'Vote',
   localField: '_id',
-  foreignField: 'recordId'
+  foreignField: 'election'
 });
 
 function autopopulate(next) {
@@ -35,10 +35,11 @@ function autopopulate(next) {
   next();
 }
 
-electionSchema.statics.findLatest = function() {
-  return this.find()
+electionSchema.statics.findLatest = async function() {
+  const latest = await this.find()
     .sort({ started: -1 })
     .limit(1);
+  return latest[0];
 };
 
 electionSchema.pre('find', autopopulate);

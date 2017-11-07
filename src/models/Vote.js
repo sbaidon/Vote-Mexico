@@ -10,16 +10,38 @@ const voteSchema = new Schema({
     type: String,
     required: 'Vote should be associated with a user'
   },
-  candidates: [{
-    type: mongoose.Schema.ObjectId,
-    ref: 'Candidate',
-    required: 'Please give a candidate id'
-  }],
+  candidates: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref: 'Candidate',
+      required: 'Please give a candidate id'
+    }
+  ],
   election: {
     type: mongoose.Schema.ObjectId,
     ref: 'Election',
     required: 'Please give a Election Record Id'
   }
 });
+
+voteSchema.statics.groupedByElection = function(electionId) {
+  return this.aggregate([
+    { $match: { election: electionId } },
+    { $unwind: { path: '$candidates', includeArrayIndex: 'arrayIndex' } },
+    {
+      $group: {
+        _id: '$candidates',
+        votes: { $push: '$$ROOT' }
+      }
+    },
+    {
+      $project: {
+        candidate: '$_id',
+        votes: '$$ROOT.votes',
+        election: electionId
+      }
+    }
+  ]);
+};
 
 export default mongoose.model('Vote', voteSchema);

@@ -1,95 +1,16 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
 import { GraphQLScalarType } from 'graphql';
 import { Kind } from 'graphql/language';
-
-dotenv.config();
-
-mongoose.connect(process.env.DATABASE, {
-  useMongoClient: true
-});
-
-mongoose.Promise = global.Promise;
-mongoose.connection.on('error', err => {
-  console.error(`There was an error: ${err.message}`);
-});
-
-import '../models/Candidate';
-import '../models/Election';
-import '../models/Vote';
+import Query from './queries';
+import Mutation from './mutations';
 
 const Candidate = mongoose.model('Candidate');
 const Vote = mongoose.model('Vote');
 const Election = mongoose.model('Election');
 
 export default {
-  Query: {
-    user(_, data, context) {
-      return context.user;
-    },
-    async currentElection(_, data) {
-      try {
-        const latestElection = await Election.findLatest();
-        return latestElection[0];
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    async getElectionById(_, data) {
-      try {
-        const election = await Election.findOne({ _id: data.id });
-        return election;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    async userVotes(_, data, context) {
-      try {
-        const votes = await Vote.find({ userId: context.user.id });
-        return votes;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    async getUserVotes(_, data) {
-      try {
-        const votes = await Vote.find({ userId: data.id });
-        return votes;
-      } catch (error) {
-        throw new Error(error);
-      }
-    }
-  },
-  Mutation: {
-    async createCandidate(_, data) {
-      try {
-        const newCandidate = await new Candidate(data).save();
-        return newCandidate;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    async createElection(_, data) {
-      try {
-        data.possibleVotes = 30; // TODO Hit Auth0 API to know possible users at the moment of new election
-        const newElection = await new Election(data).save();
-        return newElection;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    async castVote(_, data, context) {
-      try {
-        const election = await Election.findLatest();
-        data.userId = context.user.id;
-        data.election = election[0];
-        const newVote = await new Vote(data).save();
-        return newVote;
-      } catch (error) {
-        throw new Error(error);
-      }
-    }
-  },
+  Query,
+  Mutation,
   Candidate: {
     id: root => root._id || root.id
   },
@@ -103,6 +24,16 @@ export default {
     },
     async election(root) {
       await root.populate('election').execPopulate();
+      return root.election;
+    }
+  },
+  Results: {
+    async candidate(root) {
+      await Vote.populate(root, { path: 'candidate', model: 'Candidate' });
+      return root.candidate;
+    },
+    async election(root) {
+      await Vote.populate(root, { path: 'election', model: 'Election' });
       return root.election;
     }
   },

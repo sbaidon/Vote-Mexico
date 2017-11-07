@@ -1,6 +1,7 @@
 import { makeExecutableSchema } from 'graphql-tools';
 import fetch from 'node-fetch';
 import resolvers from './resolvers';
+import api from '../api';
 
 const typeDefs = `
   scalar Date
@@ -17,6 +18,7 @@ const typeDefs = `
     email: String
     id: ID!
     party: String
+    name: String
   }
 
   type Election {
@@ -32,6 +34,13 @@ const typeDefs = `
     userId: ID!
     candidates: [Candidate]!
     election: Election! 
+    arrayIndex: Int
+  }
+
+  type Results {
+    candidate: Candidate
+    votes: [Vote]
+    election: Election
   }
 
   type Query {
@@ -40,8 +49,10 @@ const typeDefs = `
     getUserVotes(id: ID!): [Vote]
     userVotes: [Vote]
     currentElection: Election!
+    results: [Results]
+    candidates: [Candidate]
+    elections: [Election]
   }
-
 
   type Mutation {
     createCandidate(name: String!, party: String!, email: String!): Candidate
@@ -54,47 +65,14 @@ export async function buildOptions(req, res) {
   if (!req.user) {
     throw new Error('Unathorized');
   }
-  const token = getToken(req.headers['authorization']);
   const userId = req.user.sub;
-  const user = await getUser(token, userId);
+  const user = await api.getUser(userId);
   const schema = makeExecutableSchema({ typeDefs, resolvers });
+
   return {
     context: {
       user
     },
     schema
   };
-}
-
-function getToken(authorization) {
-  const bearerLength = 'bearer '.length;
-  if (authorization.length > bearerLength) {
-    return authorization.slice(bearerLength);
-  }
-}
-
-async function getUser(token, userId) {
-  try {
-    const profileRequest = await fetch(
-      `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(
-        userId
-      )}?include_fields=false`,
-      {
-        method: 'GET',
-        headers: {
-          'content-type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
-    const profile = await profileRequest.json();
-    return {
-      ...profile,
-      id: profile.user_id,
-      age: profile.user_metadata.age
-    };
-  } catch (error) {
-    console.error(error);
-  }
-  return null;
 }
