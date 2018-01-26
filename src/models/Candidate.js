@@ -3,7 +3,6 @@ import validator from 'validator';
 import mongoErrors from 'mongoose-mongodb-errors';
 import md5 from 'md5';
 
-
 const Schema = mongoose.Schema;
 mongoose.Promise = global.Promise;
 
@@ -21,11 +20,13 @@ const candidateSchema = new Schema({
     required: 'Please supply a name',
     trim: true
   },
-  party: {
-    type: String,
-    required: 'Please supply a party',
-    trim: true
-  },
+  parties: [
+    {
+      type: String,
+      required: 'Please supply a party',
+      trim: true
+    }
+  ],
   image: {
     type: String
   },

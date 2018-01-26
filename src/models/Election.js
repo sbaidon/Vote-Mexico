@@ -13,11 +13,6 @@ const electionSchema = new Schema({
   finished: {
     type: Date
   },
-  system: {
-    type: String,
-    required: 'Please supply a system',
-    enum: ['FPTP', 'AV']
-  },
   possibleVotes: {
     type: Number,
     required: 'Please provide the number of possible votes'

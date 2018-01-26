@@ -9,7 +9,6 @@ export async function run() {
 
   const db = await MongoClient.connect(process.env.DATABASE);
   const agenda = new Agenda().mongo(db, 'jobs');
-  const systems = ['FPTP', 'AV'];
 
   agenda.define('finishElection', async () => {
     const latestElection = await Election.findLatest();
@@ -25,7 +24,7 @@ export async function run() {
     const nextSystem = systems[(index + 1) % 2];
     const possibleVotes = await api.getTotalUsers();
     // Start a new election
-    await new Election({ system: nextSystem, possibleVotes }).save();
+    await new Election({ possibleVotes }).save();
   });
 
   await new Promise(resolve => agenda.once('ready', resolve()));

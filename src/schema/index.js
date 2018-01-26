@@ -17,12 +17,12 @@ const typeDefs = `
   type Candidate {
     email: String
     id: ID!
-    party: String
+    parties: [String]
     name: String
+    image: String
   }
 
   type Election {
-    system: String!
     possibleVotes: Int!
     id: ID!
     votes: [Vote]
@@ -55,8 +55,8 @@ const typeDefs = `
   }
 
   type Mutation {
-    createCandidate(name: String!, party: String!, email: String!): Candidate
-    createElection(system: String!): Election 
+    createCandidate(name: String!, parties: [String!]!, email: String!, image: String): Candidate
+    createElection: Election 
     castVote(candidates: [ID]!): Vote
   }
 `;
@@ -65,8 +65,8 @@ export async function buildOptions(req, res) {
   if (!req.user) {
     throw new Error('Unathorized');
   }
-  const userId = req.user.sub;
-  const user = await api.getUser(userId);
+  const token = req.headers.authorization.replace('Bearer ', '');
+  const user = await api.getUser(token);
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
   return {

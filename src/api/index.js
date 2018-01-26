@@ -13,8 +13,9 @@ export default {
       await this.setToken();
     }
     const request = await fetch(
-      `https://${process.env
-        .AUTH0_DOMAIN}/api/v2/users?fields=total&include_fields=true&include_totals=true`,
+      `https://${
+        process.env.AUTH0_DOMAIN
+      }/api/v2/users?fields=total&include_fields=true&include_totals=true`,
       {
         method: 'GET',
         headers: {
@@ -23,31 +24,25 @@ export default {
         }
       }
     );
-    const result = await request.json();
-    return result.total;
+    const { total } = await request.json();
+    return total;
   },
-  async getUser(userId) {
-    if (!this.hasToken() || this.isTokenExpired()) {
-      await this.setToken();
-    }
-
+  async getUser(token) {
     try {
       const profileRequest = await fetch(
-        `https://${process.env.AUTH0_DOMAIN}/api/v2/users/${encodeURIComponent(
-          userId
-        )}?include_fields=false`,
+        `https://sergiobaidon.auth0.com/userinfo`,
         {
           method: 'GET',
           headers: {
             'content-type': 'application/json',
-            Authorization: `Bearer ${this.token.access_token}`
+            Authorization: `Bearer ${token}`
           }
         }
       );
       const profile = await profileRequest.json();
       return {
         ...profile,
-        id: profile.user_id,
+        id: profile.sub,
         age: (profile.user_metadata && profile.user_metadata.age) || undefined
       };
     } catch (error) {
@@ -60,7 +55,7 @@ export default {
       const body = JSON.stringify({
         client_id: `${process.env.AUTH0_ID}`,
         client_secret: `${process.env.AUTH0_SECRET}`,
-        audience: `${process.env.AUTH0_AUDIENCE}`,
+        audience: 'https://sergiobaidon.auth0.com/api/v2/',
         grant_type: 'client_credentials'
       });
       const tokenRequest = await fetch(

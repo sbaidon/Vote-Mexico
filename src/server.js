@@ -6,13 +6,16 @@ import jwks from 'jwks-rsa';
 import { run } from './scheduler';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import cors from 'cors';
 
 dotenv.config();
 
 mongoose.connect(process.env.DATABASE, {
   useMongoClient: true
 });
+
 mongoose.Promise = global.Promise;
+
 mongoose.connection.on('error', err => {
   console.error(`There was an error: ${err.message}`);
 });
@@ -37,6 +40,13 @@ if (typeof process.env.AUTH0_DOMAIN === 'undefined') {
 }
 
 server.use(
+  cors({
+    origin: 'http://localhost:8080',
+    credentials: true // <-- REQUIRED backend setting
+  })
+);
+
+server.use(
   jwt({
     secret: jwks.expressJwtSecret({
       cache: true,
@@ -44,7 +54,7 @@ server.use(
       jwksRequestsPerMinute: 5,
       jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
     }),
-    audience: `https://${process.env.AUTH0_DOMAIN}/api/v2/`,
+    audience: `${process.env.AUTH0_AUDIENCE}`,
     issuer: `https://${process.env.AUTH0_DOMAIN}/`,
     algorithms: ['RS256']
   })
@@ -60,7 +70,7 @@ server.use(
   })
 );
 
-server.use(async (err, req, res, next) => {
+server.use((err, req, res, next) => {
   if (err.name === 'UnauthorizedError') {
     res.status(401).json({
       error: err,
