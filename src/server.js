@@ -28,11 +28,6 @@ import { buildOptions } from './schema';
 const PORT = 3000;
 const server = express();
 
-if (typeof process.env.AUTH0_SECRET === 'undefined') {
-  console.warn(
-    'WARNING: process.env.AUTH0_SECRET is not defined. Check README.md for more information'
-  );
-}
 if (typeof process.env.AUTH0_DOMAIN === 'undefined') {
   console.warn(
     'WARNING: process.env.AUTH0_DOMAIN is not defined. Check README.md for more information'
@@ -41,7 +36,7 @@ if (typeof process.env.AUTH0_DOMAIN === 'undefined') {
 
 server.use(
   cors({
-    origin: 'http://localhost:8080',
+    origin: 'http://localhost:8081',
     credentials: true // <-- REQUIRED backend setting
   })
 );
