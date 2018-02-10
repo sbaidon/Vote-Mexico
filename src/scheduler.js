@@ -12,7 +12,6 @@ export async function run() {
 
   agenda.define('finishElection', async () => {
     const latestElection = await Election.findLatest();
-    console.log(latestElection);
     // Finish election
     await Election.update(
       { _id: latestElection._id },

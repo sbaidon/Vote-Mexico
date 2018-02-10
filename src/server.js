@@ -36,7 +36,7 @@ if (typeof process.env.AUTH0_DOMAIN === 'undefined') {
 
 server.use(
   cors({
-    origin: 'http://localhost:8081',
+    origin: 'http://localhost:8080',
     credentials: true // <-- REQUIRED backend setting
   })
 );
