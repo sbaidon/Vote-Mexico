@@ -12,10 +12,10 @@ export default {
   Query,
   Mutation,
   Candidate: {
-    id: root => root._id || root.id
+    id: root => root._id || root.id,
   },
   Election: {
-    id: root => root._id || root.id
+    id: root => root._id || root.id,
   },
   Vote: {
     async candidates(root) {
@@ -25,7 +25,7 @@ export default {
     async election(root) {
       await root.populate('election').execPopulate();
       return root.election;
-    }
+    },
   },
   Results: {
     async candidate(root) {
@@ -35,7 +35,7 @@ export default {
     async election(root) {
       await Vote.populate(root, { path: 'election', model: 'Election' });
       return root.election;
-    }
+    },
   },
   Date: new GraphQLScalarType({
     name: 'Date',
@@ -51,6 +51,6 @@ export default {
         return parseInt(ast.value, 10);
       }
       return null;
-    }
-  })
+    },
+  }),
 };

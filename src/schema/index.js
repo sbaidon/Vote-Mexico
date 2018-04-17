@@ -23,7 +23,7 @@ const typeDefs = `
   }
 
   type Election {
-    possibleVotes: Int!
+    possibleVotes: Int
     id: ID!
     votes: [Vote]
     started: Date
@@ -31,16 +31,18 @@ const typeDefs = `
   }
 
   type Vote {
-    userId: ID!
-    candidates: [Candidate]!
-    election: Election! 
+    id: ID
+    userId: ID
+    candidates: [Candidate]
+    election: Election
     arrayIndex: Int
   }
 
   type Results {
+    userId: ID
     candidate: Candidate
-    votes: [Vote]
     election: Election
+    votes: [Vote]
   }
 
   type Query {
@@ -50,13 +52,15 @@ const typeDefs = `
     userVotes: [Vote]
     currentElection: Election!
     results: [Results]
+    latestElectionVotes: [Vote]
     candidates: [Candidate]
     elections: [Election]
+    hasVoted: Boolean 
   }
 
   type Mutation {
     createCandidate(name: String!, parties: [String!]!, email: String!, image: String): Candidate
-    createElection: Election 
+    createElection: Election
     castVote(candidates: [ID]!): Vote
   }
 `;
@@ -71,8 +75,8 @@ export async function buildOptions(req, res) {
 
   return {
     context: {
-      user
+      user,
     },
-    schema
+    schema,
   };
 }

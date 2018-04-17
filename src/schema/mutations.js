@@ -17,6 +17,7 @@ export default {
   async createElection(_, data = {}) {
     try {
       data.possibleVotes = await api.getTotalUsers();
+      data.possibleVotes = data.possibleVotes || 0;
       const newElection = await new Election(data).save();
       return newElection;
     } catch (error) {

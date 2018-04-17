@@ -11,11 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/sbaidon/Vote-Mexico.git"
   },
-  "keywords": [
-    "Vote",
-    "Elections",
-    "2018"
-  ],
+  "keywords": ["Vote", "Elections", "2018"],
   "author": "sbaidon",
   "license": "ISC",
   "bugs": {

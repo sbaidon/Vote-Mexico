@@ -48,23 +48,30 @@ export default {
       throw new Error(error);
     }
   },
-  /*
-    async getUserVotes(_, data) {
-      try {
-        const votes = await Vote.find({ userId: data.id });
-        return votes;
-      } catch (error) {
-        throw new Error(error);
-      }
-    },
-    */
-  async results(_, data) {
+  async hasVoted(_, data, context) {
     try {
       const latestElection = await Election.findLatest();
-      const votes = await Vote.groupedByElection(latestElection._id);
-      return votes;
+      const vote = await Vote.findOne({
+        userId: context.user.id,
+        election: latestElection._id,
+      });
+      return vote ? true : false;
     } catch (error) {
       throw new Error(error);
     }
-  }
+  },
+  async results(_, data) {
+    try {
+      const { _id: id } = await Election.findLatest();
+      const results = await Vote.groupedByCandidate(id);
+      return results;
+    } catch (error) {
+      throw new Error(error);
+    }
+  },
+  async latestElectionVotes(_, data) {
+    const { _id: id } = await Election.findLatest();
+    const votes = await Vote.find({ election: id });
+    return votes;
+  },
 };
